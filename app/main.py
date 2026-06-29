@@ -5,6 +5,6 @@ app = FastAPI(
     description="Learning FastAPI via claude course"
 )
 
-app.get("/")
+@app.get("/")
 def read_root():
-    return{"message":"Welcome to Fastapi course"}
+    return {"message":"Welcome to Fastapi course"}
