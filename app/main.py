@@ -1,4 +1,12 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
+
+class Product(BaseModel):
+    name: str
+    price: float
+    stock: int
+    description: str | None = None
+    active: bool = True
 
 app = FastAPI(
     title="FastAPI Course",
@@ -56,3 +64,30 @@ def get_user_orders(user_id: int, status: str | None = None, page: int = 1):
         "page": page
     }
     return orders
+
+@app.post("/products")
+def create_product(product: Product):
+    res = {
+        "product": product,
+        "message": "Product created successfully"
+    }
+    return res
+
+
+@app.put("/products/{product_id}")
+def update_product(product_id: int, product: Product, notify: bool = False):
+    res = {
+        "product_id": product_id,
+        "product": product,
+        "notify": notify
+    }
+    return res
+
+
+@app.delete("/products/{product_id}")
+def delete_product(product_id:int):
+    res = {
+        "message": f"Product {product_id} deleted",
+        "success": True
+    }
+    return res
