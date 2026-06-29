@@ -108,7 +108,7 @@ def get_trades():
             "stop_loss": 1.1046,
             "take_profit": 1.2546,
             "lot_size": 2,
-            "notes": "i am feeling positive and i followed my rules"
+            "notes": "I am feeling positive and I followed my rules"
         },
         {
             "pair": "EURJPY",
@@ -117,7 +117,7 @@ def get_trades():
             "stop_loss": 156.200,
             "take_profit": 145.254,
             "lot_size": 2,
-            "notes": "i am not feeling cofident but i followed my rules"
+            "notes": "I am not feeling confident but I followed my rules"
         }
     ]
 
@@ -133,7 +133,7 @@ def get_summary(pair: str | None = None, direction: str | None = None):
 
 @app.get("/trades/{trade_id}")
 def get_trade(trade_id: int):
-    return{
+    return {
         "trade_id": trade_id,
         "pair": "EURUSD"
     }
