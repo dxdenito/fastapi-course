@@ -1,22 +1,115 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class Product(BaseModel):
-    name: str
-    price: float
-    stock: int
-    description: str | None = None
-    active: bool = True
+    name: str = Field(
+        ...,
+        min_length=2,
+        max_length=100,
+        description="Product name",
+        examples=["Laptop", "Phone"]
+    )
+    price: float = Field(
+        ...,
+        gt=0,
+        description="Price of the product",
+        examples=[35000, 50000]
+    )
+    stock: int = Field(
+        ...,
+        ge=0,
+        description="Number of units in stock",
+        examples=[10, 20]
+    )
+    description: str | None = Field(
+        None,
+        max_length=300,
+        description="Optional product description"
+    )
+    active: bool = Field(
+        True,
+        description="Whether the product is active",
+        examples=[True, False]
+    )
+
 
 class Trade(BaseModel):
-    pair: str
-    direction: str
-    entry_price: float
-    stop_loss: float
-    take_profit: float
-    lot_size: float = 0.01
-    notes: str | None = None
+    pair: str = Field(
+        ...,
+        min_length=6,
+        max_length=7,
+        description="Currency pair e.g. EURUSD",
+        examples=["EURUSD", "GBPJPY"]
+    )
+    direction: str = Field(
+        ...,
+        pattern="^(buy|sell)$",
+        description="Trade direction",
+        examples=["buy", "sell"]
+    )
+    entry_price: float = Field(
+        ...,
+        gt=0,
+        description="Entry price — must be positive",
+        examples=[1.1056]
+    )
+    stop_loss: float = Field(
+        ...,
+        gt=0,
+        description="Stop loss price",
+        examples=[1.1040]
+    )
+    take_profit: float = Field(
+        ...,
+        gt=0,
+        description="Take profit price",
+        examples=[1.1120]
+    )
+    lot_size: float = Field(
+        0.01,
+        gt=0,
+        le=100,
+        description="Position size in lots",
+        examples=[0.01, 0.1, 1.0]
+    )
+    notes: str | None = Field(
+        None,
+        max_length=500,
+        description="Optional trade notes"
+    )
+
+    @field_validator("pair")
+    @classmethod
+    def normalize_pair(cls, value):
+        value = value.upper()
+
+        if not value.isalpha():
+            raise ValueError("Only letters (A-Z) allowed!")
+        return value
+
+
+    @field_validator("direction", mode= "before")
+    @classmethod
+    def normalize_direction(cls, value):
+        value.lower()
+        return value
+
+
+    @model_validator(mode= "after")
+    def check_model(self):
+        if self.direction == "buy":
+            if not self.stop_loss <= self.entry_price \
+                  and self.take_profit >= self.entry_price:
+                raise ValueError("stoploss must be below the entry price and" \
+                " take profit must be above the entry price")
+
+        if self.direction == "sell":
+            if not self.stop_loss >= self.entry_price \
+                  and self.take_profit <= self.entry_price:
+                raise ValueError("stoploss must be above the entry price and" \
+                " take profit must be below the entry price")
+        return self
 
 
 app = FastAPI(
