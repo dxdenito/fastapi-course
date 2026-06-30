@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import positions, products, trades
+from app.routers import positions, products, trades, backtest
 
 app = FastAPI(title="FastAPI Course", description="Learning FastAPI via Claude Course")
 
@@ -8,6 +8,7 @@ app = FastAPI(title="FastAPI Course", description="Learning FastAPI via Claude C
 app.include_router(trades.router)
 app.include_router(positions.router)
 app.include_router(products.router)
+app.include_router(backtest.router)
 
 
 @app.get("/")
