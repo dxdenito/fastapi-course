@@ -89,26 +89,25 @@ class Trade(BaseModel):
         return value
 
 
-    @field_validator("direction", mode= "before")
+    @field_validator("direction", mode="before")
     @classmethod
     def normalize_direction(cls, value):
-        value.lower()
-        return value
+        return value.lower()
 
 
-    @model_validator(mode= "after")
+    @model_validator(mode="after")
     def check_model(self):
         if self.direction == "buy":
-            if not self.stop_loss <= self.entry_price \
-                  and self.take_profit >= self.entry_price:
-                raise ValueError("stoploss must be below the entry price and" \
-                " take profit must be above the entry price")
+            if self.stop_loss >= self.entry_price:
+                raise ValueError("BUY: stoploss must be below the entry price")
+            if self.take_profit <= self.entry_price:
+                raise ValueError("BUY: take profit must be above the entry price")
 
         if self.direction == "sell":
-            if not self.stop_loss >= self.entry_price \
-                  and self.take_profit <= self.entry_price:
-                raise ValueError("stoploss must be above the entry price and" \
-                " take profit must be below the entry price")
+            if self.stop_loss <= self.entry_price:
+                raise ValueError("SELL: stoploss must be above the entry price")
+            if self.take_profit >= self.entry_price:
+                raise ValueError("SELL: take profit must be below the entry price")
         return self
 
 
