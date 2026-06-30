@@ -61,7 +61,7 @@ class PositionResponse(BaseModel):
     symbol: str
     side: str
     entry_price: float
-    exit_price: float
+    exit_price: float | None 
     size: float
     opened_at: datetime
 

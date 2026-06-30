@@ -1,8 +1,7 @@
-from fastapi import APIRouter
-
 import uuid
-
 from datetime import datetime
+
+from fastapi import APIRouter
 
 from app.schemas.position import PositionCreate, PositionResponse
 
