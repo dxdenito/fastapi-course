@@ -1,11 +1,14 @@
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from app.dependencies import pagination_params, verify_api_key
 from app.schemas.position import PositionCreate, PositionResponse
 
-router = APIRouter(prefix="/positions", tags=["positions"])
+router = APIRouter(
+    prefix="/positions", tags=["positions"], dependencies=[Depends(verify_api_key)]
+)
 
 
 @router.post("/", response_model=PositionResponse)
@@ -22,7 +25,11 @@ def create_position(position: PositionCreate):
 
 
 @router.get("/", response_model=list[PositionResponse])
-def get_positions():
+def get_positions(pagination: dict = Depends(pagination_params)):
+    skip = pagination["skip"]
+    limit = pagination["limit"]
+    print(f"skip is: {skip} and limit is: {limit}")
+
     return [
         {
             "id": str(uuid.uuid4()),

@@ -1,15 +1,20 @@
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from app.dependencies import pagination_params
 from app.schemas.trade import Trade, TradeResponse
 
 router = APIRouter(prefix="/trades", tags=["trades"])
 
 
 @router.get("/", response_model=list[TradeResponse])
-def get_trades():
+def get_trades(pagination: dict = Depends(pagination_params)):
+    skip = pagination["skip"]
+    limit = pagination["limit"]
+    print(f"skip is: {skip} and limit is: {limit}")
+
     return [
         {
             "id": str(uuid.uuid4()),
