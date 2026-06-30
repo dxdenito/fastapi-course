@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.dependencies import pagination_params, verify_api_key
 from app.schemas.position import PositionCreate, PositionResponse
@@ -54,6 +54,8 @@ def get_positions(pagination: dict = Depends(pagination_params)):
 
 @router.get("/{position_id}", response_model=PositionResponse)
 def get_position(position_id: int):
+    if position_id != 1:
+        raise HTTPException(status_code=404, detail="Position not found!")
     return {
         "id": str(position_id),
         "symbol": "GBPJPY",

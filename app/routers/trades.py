@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.dependencies import pagination_params
 from app.schemas.trade import Trade, TradeResponse
@@ -48,6 +48,8 @@ def get_summary(pair: str | None = None, direction: str | None = None):
 
 @router.get("/{trade_id}")
 def get_trade(trade_id: int):
+    if trade_id != 1:
+        raise HTTPException(status_code=404, detail="Trade not found!")
     return {"trade_id": trade_id, "pair": "EURUSD"}
 
 
