@@ -1,8 +1,24 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
-from app.routers import positions, products, trades, backtest
+from app.core.database import Base, engine
+from app.routers import backtest, positions, products, trades
 
-app = FastAPI(title="FastAPI Course", description="Learning FastAPI via Claude Course")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    await engine.dispose()
+
+
+app = FastAPI(
+    title="FastAPI Course",
+    description="Learning FastAPI via Claude Course",
+    lifespan=lifespan,
+)
 
 
 app.include_router(trades.router)
