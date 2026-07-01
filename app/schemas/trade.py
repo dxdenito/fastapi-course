@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
@@ -24,7 +25,7 @@ class TimeFrameAnalysis(BaseModel):
     notes: str | None = None
 
 
-class Trade(BaseModel):
+class TradeCreate(BaseModel):
     pair: str = Field(
         ...,
         min_length=6,
@@ -91,7 +92,7 @@ class Trade(BaseModel):
 
 
 class TradeResponse(BaseModel):
-    id: str
+    id: int
     pair: str
     direction: str
     entry_price: float

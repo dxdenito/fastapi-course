@@ -1,72 +1,62 @@
-import uuid
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import pagination_params
-from app.schemas.trade import Trade, TradeResponse
+from app.dependencies import get_db, pagination_params
+from app.models.trade import Trade
+from app.schemas.trade import TradeCreate, TradeResponse
 
 router = APIRouter(prefix="/trades", tags=["trades"])
 
 
-@router.get("/", response_model=list[TradeResponse])
-def get_trades(pagination: dict = Depends(pagination_params)):
-    skip = pagination["skip"]
-    limit = pagination["limit"]
-    print(f"skip is: {skip} and limit is: {limit}")
-
-    return [
-        {
-            "id": str(uuid.uuid4()),
-            "pair": "EURUSD",
-            "direction": "buy",
-            "entry_price": 1.1056,
-            "stop_loss": 1.1046,
-            "take_profit": 1.2546,
-            "lot_size": 2,
-            "notes": "I am feeling positive and I followed my rules",
-            "logged_at": datetime.now(),
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "pair": "EURJPY",
-            "direction": "sell",
-            "entry_price": 156.105,
-            "stop_loss": 156.200,
-            "take_profit": 145.254,
-            "lot_size": 2,
-            "notes": "I am not feeling confident but I followed my rules",
-            "logged_at": datetime.now(),
-        },
-    ]
-
-
 @router.get("/summary")
-def get_summary(pair: str | None = None, direction: str | None = None):
+async def get_summary(pair: str | None = None, direction: str | None = None):
     return {"pair": pair, "direction": direction, "total_trades": 0}
 
 
-@router.get("/{trade_id}")
-def get_trade(trade_id: int):
-    if trade_id != 1:
-        raise HTTPException(status_code=404, detail="Trade not found!")
-    return {"trade_id": trade_id, "pair": "EURUSD"}
+@router.get("/", response_model=list[TradeResponse])
+async def get_trades(
+    pagination: dict = Depends(pagination_params), db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Trade).offset(pagination["skip"]).limit(pagination["limit"])
+    )
+    return result.scalars().all()
+
+
+@router.get("/{trade_id}", response_model=TradeResponse)
+async def get_trade(trade_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Trade).where(Trade.id == trade_id))
+    trade = result.scalar_one_or_none()
+    if trade is None:
+        raise HTTPException(status_code=404, detail=f"Trade {trade_id} not found")
+    return trade
 
 
 @router.post("/", response_model=TradeResponse)
-def log_trade(trade: Trade):
-    return {
-        "id": str(uuid.uuid4()),
-        "pair": trade.pair,
-        "direction": trade.direction,
-        "entry_price": trade.entry_price,
-        "stop_loss": trade.stop_loss,
-        "take_profit": trade.take_profit,
-        "lot_size": trade.lot_size,
-        "logged_at": datetime.now(),
-    }
+async def create_trade(trade: TradeCreate, db: AsyncSession = Depends(get_db)):
+    db_trade = Trade(
+        pair=trade.pair,
+        direction=trade.direction,
+        entry_price=trade.entry_price,
+        stop_loss=trade.stop_loss,
+        take_profit=trade.take_profit,
+        lot_size=trade.lot_size,
+        notes=trade.notes,
+        logged_at=datetime.now(),
+    )
+    db.add(db_trade)
+    await db.flush()
+    return db_trade
 
 
 @router.delete("/{trade_id}")
-def delete_trade(trade_id: int):
-    return {"message": f"Trade {trade_id} removed", "success": True}
+async def delete_trade(trade_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Trade).where(Trade.id == trade_id))
+    trade = result.scalar_one_or_none()
+    if trade is None:
+        raise HTTPException(status_code=404, detail=f"Trade {trade_id} not found")
+    await db.delete(trade)
+    return {"message": f"Trade {trade_id} deleted", "success": True}
