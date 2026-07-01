@@ -3,6 +3,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.core.database import Base, engine
+from app.models import (
+    trade,  # noqa: F401 - imported for side effects (model registration)
+)
 from app.routers import backtest, positions, products, trades
 
 
