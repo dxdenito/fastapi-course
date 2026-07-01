@@ -16,7 +16,7 @@ class Trade(Base):
     stop_loss: Mapped[float] = mapped_column(Float, nullable=False)
     take_profit: Mapped[float] = mapped_column(Float, nullable=False)
     lot_size: Mapped[float] = mapped_column(Float, nullable=False)
-    notes: Mapped[str] = mapped_column(Text, nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     logged_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now, nullable=False
     )
