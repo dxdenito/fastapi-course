@@ -55,7 +55,7 @@ class BacktestCreate(BaseModel):
 
 
 class BacktestResponse(BaseModel):
-    id: str
+    id: int
     strategy_name: str
     pair: str
     timeframe: str

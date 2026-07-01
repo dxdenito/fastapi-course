@@ -66,8 +66,8 @@ fastapi-course/
 | Module 1 | FastAPI Foundations | ✅ Complete |
 | Module 2 | Pydantic v2 In Depth | ✅ Complete |
 | Module 3 | Routing & Architecture | ✅ Complete |
-| Module 4 | Database Integration | ⏳ Pending |
-| Module 5 | Auth & Security | ⏳ Pending |
+| Module 4 | Database Integration | ✅ Complete |
+| Module 5 | Auth & Security | 🔄 In Progress |
 | Module 6 | Advanced Patterns | ⏳ Pending |
 | Module 7 | Testing & DevOps | ⏳ Pending |
 
