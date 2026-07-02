@@ -5,8 +5,10 @@ from fastapi import FastAPI
 from app.core.database import engine
 from app.models import (
     backtest,  # noqa: F401
-    trade,  # noqa: F401 - imported for side effects (model registration)
+    trade,  # noqa: F401 - imported for side effects (model registration),
+    user,  # noqa: F401 - imported for side effects (model registration)
 )
+from app.routers import auth as user
 from app.routers import backtest, positions, products, trades
 
 
@@ -27,6 +29,7 @@ app.include_router(trades.router)
 app.include_router(positions.router)
 app.include_router(products.router)
 app.include_router(backtest.router)
+app.include_router(user.router)
 
 
 @app.get("/")
